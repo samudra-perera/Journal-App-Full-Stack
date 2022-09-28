@@ -1,5 +1,7 @@
 const User = require('../model/user')
 const bycrypt = require('bcryptjs')
+const jwt = require('jsonwebtoken')
+const JWT_SECRET_KEY = 'MyKey'
 
 const signup = async(req, res, next) => {
     const {name, screenName, email, password} = req.body    //Destructure the req.body for cleaner code 
@@ -51,8 +53,46 @@ const login = async(req, res, next) => {
     if(!reHashedPassword) {
         return res.status(400).json({message: "Invalid Password"})  //if passwords do not match 0
     }
-    return res.status(200).json({message: 'Successfully Logged In'})    //If passwords match respond with login status 
+
+    const token = jwt.sign({id: existingUser._id}, JWT_SECRET_KEY, {//Generating the JWT token 
+        expiresIn: '1hr'    
+    })
+
+    return res.status(200).json({message: 'Successfully Logged In', user: existingUser, token})    //If passwords match respond with login status 
 }
+
+const verifyToken = async(req, res, next) => {
+    const header = req.headers[`authorization`]
+    const token = header.split(" ")[1]
+    if(!token) {
+        res.status(404).json({message: "No Token found"})
+    }
+    jwt.verify(String(token), JWT_SECRET_KEY, (err, user) => {
+        if(err) {
+            return res.status(400).json({message: "Invalid Token"})
+        }
+        console.log(user.id)
+        req.id = user.id
+    })
+    next();
+}
+
+const getUser = async(req, res, next) => {
+    const userId = req.id;
+    let user;
+    try {
+        user = await User.findById(userId, "-password")
+    } catch (error) {
+        return new Error(error)
+    }
+    if(!user) {
+        return res.status(404).json({message: 'User Not Found'})
+    }
+    return res.status(200).json({user})
+}
+
 
 exports.signup = signup
 exports.login = login
+exports.verifyToken = verifyToken
+exports.getUser = getUser

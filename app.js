@@ -11,4 +11,3 @@ mongoose.connect('mongodb+srv://admin:Z4053A8VAzyBwXcR@cluster0.rp83e1v.mongodb.
             app.listen(3000);
             console.log('Database is connected and IM listening on 3000')
         }).catch((err) => console.log(err))
-//Z4053A8VAzyBwXcR
