@@ -9,8 +9,8 @@ const signup = async(req, res, next) => {
 
     try {
         existingUser = await User.findOne(
-            { $or: [{ email: email }, { userName: name }] }
-        );  //Finds if there is already a user with that same email 
+            { $or: [{ email: email }, { userName: name }] } //Finds if there is already a user with that same email or username
+        );  
     } catch (error) {
         console.log(error)
     }
@@ -58,14 +58,22 @@ const login = async(req, res, next) => {
         expiresIn: '1hr'    
     })
 
+    res.cookie(String(existingUser._id), token, {
+        path: '/',
+        expires: new Date(Date.now() + 1000 * 30),
+        httpOnly: true,
+        sameSite: 'lax'
+    })
+
     return res.status(200).json({message: 'Successfully Logged In', user: existingUser, token})    //If passwords match respond with login status 
 }
 
-const verifyToken = async(req, res, next) => {
-    const header = req.headers[`authorization`]
-    const token = header.split(" ")[1]
+const verifyToken = async(req, res, next) => {  //Token Verfication
+    const cookies = req.headers.cookie;
+    const token = cookies.split('=')[1]
+
     if(!token) {
-        res.status(404).json({message: "No Token found"})
+        res.status(404).json({message: "No Token found"})   //If token does not exist return status 404
     }
     jwt.verify(String(token), JWT_SECRET_KEY, (err, user) => {
         if(err) {
@@ -74,11 +82,11 @@ const verifyToken = async(req, res, next) => {
         console.log(user.id)
         req.id = user.id
     })
-    next();
+    next(); //Calls the next middleware functon(in this case getUser)
 }
 
-const getUser = async(req, res, next) => {
-    const userId = req.id;
+const getUser = async(req, res, next) => {  //Once the token verification is done get the userID
+    const userId = req.id;  //After the token is verfiied we send the req.id as the userID in the verify token function
     let user;
     try {
         user = await User.findById(userId, "-password")
