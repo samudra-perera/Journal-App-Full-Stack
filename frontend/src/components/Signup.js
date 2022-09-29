@@ -10,6 +10,7 @@ export const Signup = () => {
     screenName: "",
     email: "",
     password: "",
+    confirmPassword: '',
   });
   const sendRequest = async () => {
     const res = await axios
@@ -18,6 +19,7 @@ export const Signup = () => {
         screenName: inputs.screenName,
         email: inputs.email,
         password: inputs.password,
+        confirmPassword: inputs.confirmPassword
       })
       .catch((err) => console.log(err.response));
     const data = await res.data;
@@ -82,6 +84,15 @@ export const Signup = () => {
             value={inputs.password}
             variant="outlined"
             placeholder="password"
+            margin="normal"
+          />
+          <TextField
+            name="confirmPassword"
+            onChange={handleChange}
+            type="password"
+            value={inputs.confirmPassword}
+            variant="outlined"
+            placeholder="confirm password"
             margin="normal"
           />
           <Button variant="contained" type="submit">
