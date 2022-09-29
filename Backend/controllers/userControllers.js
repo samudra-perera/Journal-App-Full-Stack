@@ -113,6 +113,25 @@ const getUser = async (req, res, next) => {
   return res.status(200).json({ user });
 };
 
+const logout = async (req, res, next) => {
+    const cookies = req.headers.cookie;
+    const token = cookies.split("=")[1];
+  
+    if (!token) {
+      res.status(404).json({ message: "No Token found" }); //If token does not exist return status 404
+    }
+    jwt.verify(String(prevToken), JWT_SECRET_KEY, (err, user) => {
+        if (err) {
+          console.log(err);
+          return res.status(403).json({ message: "Authenticaton Failed" });
+        }
+        res.clearCookie(`${user.id}`);
+        req.cookies[`${user.id}`] = "";
+        return res.status(200).json({message: "Successfully Logged Out"})
+      });
+
+}
+
 // const refreshToken = async (req, res, next) => {
 //   const cookies = req.headers.cookie;
 //   const prevToken = cookies.split("=")[1];
@@ -147,4 +166,5 @@ exports.signup = signup;
 exports.login = login;
 exports.verifyToken = verifyToken;
 exports.getUser = getUser;
+exports.logout = logout
 // exports.refreshToken = refreshToken;
