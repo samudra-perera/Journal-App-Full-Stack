@@ -1,21 +1,40 @@
-import { Button, TextField, Typography } from "@mui/material";
-import { Box } from "@mui/system";
+import { Box, Button, TextField, Typography } from "@mui/material";
 import React, { useState } from "react";
+import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
 export const Signup = () => {
+  const history = useNavigate();
   const [inputs, setInputs] = useState({
-    name: "",
-    username: "",
+    userName: "",
+    screenName: "",
     email: "",
     password: "",
   });
-  const handleSubmit = () => {};
-  const handleChange = (e) => {     //Passes in event on handlechange
-    setInputs(prev => ({            //Prev is the inputs object 
-        ...prev,
-        [e.target.name]: e.target.value
-    }))
-    console.log(e.target.name, 'value', e.target.value)
+  const sendRequest = async () => {
+    const res = await axios
+      .post("http://localhost:2121/signup", {
+        userName: inputs.userName,
+        screenName: inputs.screenName,
+        email: inputs.email,
+        password: inputs.password,
+      })
+      .catch((err) => console.log(err.response));
+    const data = await res.data;
+    return data;
+  };
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    sendRequest().then(() => history("/login"));
+  };
+  const handleChange = (e) => {
+    //Passes in event on handlechange
+    setInputs((prev) => ({
+      //Prev is the inputs object
+      ...prev,
+      [e.target.name]: e.target.value,
+    }));
+    console.log(e.target.name, "value", e.target.value);
   };
   return (
     <div>
@@ -30,25 +49,25 @@ export const Signup = () => {
         >
           <Typography variant="h2">Signup</Typography>
           <TextField
-          name="name"
+            name="userName"
             onChange={handleChange}
-            type="name"
-            value={inputs.name}
+            type="userName"
+            value={inputs.UserName}
             variant="outlined"
-            placeholder="name"
+            placeholder="Username"
             margin="normal"
           />
           <TextField
-          name="username"
+            name="screenName"
             onChange={handleChange}
-            type="username"
-            value={inputs.username}
+            type="screenName"
+            value={inputs.screenName}
             variant="outlined"
-            placeholder="username"
+            placeholder="screen name"
             margin="normal"
           />
           <TextField
-          name="email"
+            name="email"
             onChange={handleChange}
             type="email"
             value={inputs.email}
@@ -57,7 +76,7 @@ export const Signup = () => {
             margin="normal"
           />
           <TextField
-          name="password"
+            name="password"
             onChange={handleChange}
             type="password"
             value={inputs.password}
