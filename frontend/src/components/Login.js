@@ -2,8 +2,11 @@ import { Box, Button, TextField, Typography } from "@mui/material";
 import React, { useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import { useDispatch } from "react-redux";
+import { authActions } from "../store";
 
 export const Login = () => {
+  const dispatch = useDispatch()
   const history = useNavigate();
   const [inputs, setInputs] = useState({
     userName: "",
@@ -23,7 +26,7 @@ export const Login = () => {
   };
   const handleSubmit = (e) => {
     e.preventDefault();
-    sendRequest().then(() => history("/user"));
+    sendRequest().then(()=>dispatch(authActions.login)).then(() => history("/user"));
   };
   const handleChange = (e) => {
     //Passes in event on handlechange
